@@ -45,7 +45,37 @@ def calculate_dynamic_score(task: models.Task, current_context: Optional[str] = 
 
 @router.post("/", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
-    db_task = models.Task(**task.model_dump())
+    task_data = task.model_dump()
+
+    # Se urgência e esforço foram enviados, calcula o score e ativa a task
+    urgency = task_data.get("urgency")
+    effort = task_data.get("effort")
+    if urgency and effort and effort > 0:
+        base_score = urgency / effort
+
+        # Multiplicador de deadline na criação
+        deadline_multiplier = 1.0
+        due_date = task_data.get("due_date")
+        if due_date:
+            now = datetime.now(timezone.utc)
+            due = due_date if hasattr(due_date, "tzinfo") else due_date
+            if hasattr(due, "tzinfo") and due.tzinfo is None:
+                due = due.replace(tzinfo=timezone.utc)
+            try:
+                days_remaining = (due - now).total_seconds() / 86400
+                if days_remaining < 0: deadline_multiplier = 5.0
+                elif days_remaining < 1: deadline_multiplier = 4.0
+                elif days_remaining < 3: deadline_multiplier = 2.5
+                elif days_remaining < 7: deadline_multiplier = 1.5
+            except TypeError:
+                pass
+
+        task_data["priority_score"] = round(base_score * deadline_multiplier, 4)
+        # Promove de backlog para fila ativa
+        if task_data.get("status") in (None, "backlog"):
+            task_data["status"] = "todo"
+
+    db_task = models.Task(**task_data)
     db.add(db_task)
     db.commit()
     db.refresh(db_task)

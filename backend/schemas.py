@@ -16,7 +16,8 @@ class TaskBase(BaseModel):
 
 # O que o Frontend envia no "Quick Add"
 class TaskCreate(TaskBase):
-    pass
+    urgency: Optional[int] = None
+    effort: Optional[int] = None
 
 # O que o Frontend envia para atualizar os dados gerais
 class TaskUpdate(BaseModel):

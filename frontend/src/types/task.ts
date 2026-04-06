@@ -26,6 +26,8 @@ export interface TaskCreate {
   due_date?: string;
   status?: TaskStatus;
   parent_id?: number;
+  urgency?: number;
+  effort?: number;
 }
 
 export interface TaskCalibrate {

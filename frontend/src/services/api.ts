@@ -8,18 +8,41 @@ export interface CapacityData {
 
 const BASE = '/api';
 
+/** Converte qualquer formato de erro da API em string legível */
+function parseApiError(detail: unknown): string {
+  if (!detail) return 'Erro desconhecido na API';
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    // FastAPI 422: [{ loc, msg, type }]
+    return detail.map((d: any) => d?.msg ?? JSON.stringify(d)).join(' | ');
+  }
+  if (typeof detail === 'object') {
+    return JSON.stringify(detail);
+  }
+  return String(detail);
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
+  } catch (networkErr: any) {
+    throw new Error(`Falha de rede: ${networkErr?.message ?? 'verifique sua conexão'}`);
+  }
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail ?? 'Erro desconhecido na API');
+    // Tenta parsear JSON; se falhar (ex: HTML de erro do Render), usa statusText
+    const body = await res.json().catch(() => null);
+    const detail = body?.detail ?? body ?? res.statusText;
+    throw new Error(parseApiError(detail));
   }
   if (res.status === 204) return undefined as T;
   return res.json();
 }
+
 
 export const api = {
   getTasks: (context?: string) => {
