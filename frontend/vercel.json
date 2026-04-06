@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://theta-api-wloc.onrender.com/api/$1"
+      "destination": "https://theta-api-wloc.onrender.com/$1"
     },
     {
       "source": "/(.*)",
