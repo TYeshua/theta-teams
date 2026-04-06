@@ -15,19 +15,15 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# CORS — permite que o frontend web (Vite) E o app mobile (Expo) consumam a API.
-# "*" é temporário para dev. Em produção, liste as origens explícitas.
-# ATENÇÃO: allow_credentials deve ser False quando allow_origins=["*"]
+# CORS — permite que o frontend (Vercel), dev local e mobile consumam a API.
+# TODO: Após confirmar que o bug foi resolvido, substitua ["*"] pela lista de
+#       origens explícitas: ["https://SEU-DOMINIO.vercel.app", "http://localhost:5173"]
+#       E reative allow_credentials=True (incompatível com wildcard).
 # ---------------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],   # ← wildcard temporário para diagnóstico
+    allow_credentials=False,  # DEVE ser False quando allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )

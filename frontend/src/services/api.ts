@@ -23,12 +23,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   getTasks: (context?: string) => {
-    const qs = context ? `?current_context=${context}` : '';
-    return request<Task[]>(`/tasks/${qs}`);
+    const qs = context ? `?current_context=${encodeURIComponent(context)}` : '';
+    return request<Task[]>(`/tasks${qs}`);
   },
 
   createTask: (data: TaskCreate) =>
-    request<Task>('/tasks/', {
+    request<Task>('/tasks', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
