@@ -11,7 +11,11 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="THETA API",
     description="API for managing complex responsibilities, tasks, research, and deadlines",
-    version="1.0.0"
+    version="1.0.0",
+    # CRÍTICO: sem isso, FastAPI emite 307 redirect de /tasks → /tasks/
+    # O browser segue o redirect DIRETAMENTE para o Render, bypassando o proxy
+    # da Vercel, causando ERR_CONNECTION_CLOSED no cold-start do free tier.
+    redirect_slashes=False,
 )
 
 # ---------------------------------------------------------------------------

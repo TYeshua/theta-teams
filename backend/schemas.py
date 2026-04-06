@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -35,12 +35,12 @@ class TaskCalibrate(BaseModel):
 
 # Como o Backend devolve a tarefa formatada para o React
 class TaskResponse(TaskBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     urgency: Optional[int] = None
     effort: Optional[int] = None
-    priority_score: float
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True # Permite ler dados do SQLAlchemy
+    # Tolerante a NULL no banco — nunca quebra a serialização
+    priority_score: float = 0.0
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
