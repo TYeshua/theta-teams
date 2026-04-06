@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ================================================================
+   THETA DESIGN SYSTEM — Apple / Luxury OLED Aesthetic
+   ================================================================ */
+
+:root {
+  color-scheme: dark;
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --color-oled: #0A0A0A;
+  --color-card: #1A1A1A;
+  --color-scarlet: #ff2400;
+  --color-orange: #fb923c;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-oled);
+  color: #f3f4f6;
+  min-height: 100dvh;
+  overflow: hidden; /* Prevent body scroll, let app frame handle it */
+}
+
+/* Scrollbar hidden for app-like authentic mobile feel */
+::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ================================================================
+   THETA Premium Animations
+   ================================================================ */
+
+/* OLED Scarlet Glow Pulse */
+@keyframes glow-scarlet {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(255, 36, 0, 0.2); 
+    border-color: rgba(255, 36, 0, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(255, 36, 0, 0.5); 
+    border-color: rgba(255, 36, 0, 0.6);
+  }
+}
+
+.animate-glow-scarlet {
+  animation: glow-scarlet 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glassmorphism utility */
+.glass-header {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-nav {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
