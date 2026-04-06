@@ -26,8 +26,8 @@ const URGENCY_COLORS: Record<number, { bg: string; border: string; color: string
   1: { bg: 'rgba(100,200,100,0.10)', border: 'rgba(100,200,100,0.40)', color: '#64c864', glow: 'rgba(100,200,100,0.20)' },
   2: { bg: 'rgba(180,220,80,0.10)',  border: 'rgba(180,220,80,0.40)',  color: '#b4dc50', glow: 'rgba(180,220,80,0.20)'  },
   3: { bg: 'rgba(255,200,0,0.10)',   border: 'rgba(255,200,0,0.40)',   color: '#ffc800', glow: 'rgba(255,200,0,0.20)'   },
-  4: { bg: 'rgba(255,120,0,0.12)',   border: 'rgba(255,120,0,0.50)',   color: '#ff7800', glow: 'rgba(255,120,0,0.25)'   },
-  5: { bg: 'rgba(255,36,0,0.15)',    border: 'rgba(255,36,0,0.55)',    color: '#ff2400', glow: 'rgba(255,36,0,0.30)'    },
+  4: { bg: 'rgba(59,130,246,0.12)',   border: 'rgba(59,130,246,0.50)',   color: '#3b82f6', glow: 'rgba(59,130,246,0.25)'   },
+  5: { bg: 'rgba(0,242,255,0.15)',    border: 'rgba(0,242,255,0.55)',    color: '#00f2ff', glow: 'rgba(0,242,255,0.30)'    },
 };
 
 export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalProps) {
@@ -121,7 +121,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                 <h2 className="text-lg font-bold text-white tracking-tight leading-none">Nova Inserção</h2>
                 {projectedScore && (
                   <p className="text-[10px] text-neutral-500 mt-0.5">
-                    Score projetado: <span className="text-[#ff2400] font-black">{projectedScore}</span>
+                    Score projetado: <span className="text-[#00f2ff] font-black">{projectedScore}</span>
                   </p>
                 )}
               </div>
@@ -149,7 +149,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   className="w-full bg-[#050505] border border-white/[0.05] rounded-2xl px-4 py-4
                     text-sm text-white placeholder-neutral-700
-                    focus:outline-none focus:bg-white/[0.02] focus:border-[#ff2400]/40 focus:ring-1 focus:ring-[#ff2400]/20
+                    focus:outline-none focus:bg-white/[0.02] focus:border-[#00f2ff]/40 focus:ring-1 focus:ring-[#00f2ff]/20
                     transition-all duration-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                 />
               </div>
@@ -227,10 +227,10 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                         onClick={() => setSelectedEffort(isSelected ? null : val)}
                         className="flex-1 py-2.5 rounded-xl text-[12px] font-black transition-all duration-200"
                         style={{
-                          background: isSelected ? 'rgba(255,36,0,0.15)' : 'rgba(255,255,255,0.03)',
-                          border: isSelected ? '1px solid rgba(255,36,0,0.50)' : '1px solid rgba(255,255,255,0.05)',
-                          color: isSelected ? '#ff2400' : '#666',
-                          boxShadow: isSelected ? '0 0 12px rgba(255,36,0,0.20)' : 'none',
+                          background: isSelected ? 'rgba(0,242,255,0.15)' : 'rgba(255,255,255,0.03)',
+                          border: isSelected ? '1px solid rgba(0,242,255,0.50)' : '1px solid rgba(255,255,255,0.05)',
+                          color: isSelected ? '#00f2ff' : '#666',
+                          boxShadow: isSelected ? '0 0 12px rgba(0,242,255,0.20)' : 'none',
                         }}
                       >
                         {val}
@@ -251,9 +251,9 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                       <div
                         className="flex items-start gap-2 px-4 py-3 rounded-2xl text-[10px] font-bold leading-relaxed"
                         style={{
-                          background: 'rgba(220,20,60,0.08)',
-                          border: '1px solid rgba(220,20,60,0.25)',
-                          color: '#dc143c',
+                          background: 'rgba(59,130,246,0.08)',
+                          border: '1px solid rgba(59,130,246,0.25)',
+                          color: '#3b82f6',
                         }}
                       >
                         <span className="shrink-0 mt-0.5">⚠️</span>
@@ -302,7 +302,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                     value={form.due_date || ''}
                     onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))}
                     className="w-full bg-[#050505] border border-white/[0.05] rounded-2xl px-4 py-3.5
-                      text-sm text-neutral-300 focus:outline-none focus:border-[#ff2400]/40 focus:ring-1 focus:ring-[#ff2400]/20
+                      text-sm text-neutral-300 focus:outline-none focus:border-[#00f2ff]/40 focus:ring-1 focus:ring-[#00f2ff]/20
                       transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]
                       [color-scheme:dark]"
                   />
@@ -318,7 +318,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <p className="text-[10px] font-bold text-[#ff2400] bg-[#ff2400]/10 border border-[#ff2400]/20 rounded-xl px-4 py-3 uppercase tracking-widest mt-2">
+                    <p className="text-[10px] font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/20 rounded-xl px-4 py-3 uppercase tracking-widest mt-2">
                       {error}
                     </p>
                   </motion.div>
@@ -348,7 +348,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                 flex items-center justify-center gap-2 transition-all duration-300"
               style={{
                 boxShadow: isCriticalImpact
-                  ? '0 0 28px rgba(220,20,60,0.60), 0 0 10px rgba(220,20,60,0.35)'
+                  ? '0 0 28px rgba(0,242,255,0.60), 0 0 10px rgba(0,242,255,0.35)'
                   : '0 0 20px rgba(255,255,255,0.10)',
               }}
             >

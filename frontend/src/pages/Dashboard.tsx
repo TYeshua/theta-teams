@@ -80,7 +80,7 @@ export function Dashboard() {
              <motion.div 
                animate={{ opacity: [1, 0.4, 1] }}
                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-               className="px-2.5 py-1 rounded-full bg-[#ff2400]/10 border border-[#ff2400]/30 text-[#ff2400] text-[9px] font-black tracking-wider shadow-[0_0_10px_rgba(255,36,0,0.2)]"
+               className="px-2.5 py-1 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/30 text-[#00f2ff] text-[9px] font-black tracking-wider shadow-[0_0_10px_rgba(0,242,255,0.2)]"
              >
                SISTEMA CRÍTICO
              </motion.div>
@@ -96,12 +96,12 @@ export function Dashboard() {
         )}
 
         {error && !loading && (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-20 gap-4 bg-[#ff2400]/10 rounded-[32px] border border-[#ff2400]/20 mt-4 shadow-[inset_0_0_40px_rgba(255,36,0,0.1)]">
-            <ServerCrash size={32} className="text-[#ff2400]/60" />
-            <p className="text-[10px] font-black text-[#ff2400] uppercase tracking-widest">Falha na Transmissão</p>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-20 gap-4 bg-[#00f2ff]/10 rounded-[32px] border border-[#00f2ff]/20 mt-4 shadow-[inset_0_0_40px_rgba(0,242,255,0.1)]">
+            <ServerCrash size={32} className="text-[#00f2ff]/60" />
+            <p className="text-[10px] font-black text-[#00f2ff] uppercase tracking-widest">Falha na Transmissão</p>
             <button 
               onClick={fetchTasks} 
-              className="px-6 py-2 bg-[#ff2400]/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-[#ff2400]/30 text-[#ff2400] hover:bg-[#ff2400]/30 transition-colors active:scale-95"
+              className="px-6 py-2 bg-[#00f2ff]/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-[#00f2ff]/30 text-[#00f2ff] hover:bg-[#00f2ff]/30 transition-colors active:scale-95"
             >
               Ressincronizar
             </button>
@@ -158,7 +158,7 @@ export function Dashboard() {
               transition={springTransition}
               onClick={() => setShowAdd(true)}
               title="Nova Demanda (somente Líder)"
-              className="w-[60px] h-[60px] bg-[#ff2400] text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(255,36,0,0.4)] ring-4 ring-[#050505] border border-white/20"
+              className="w-[60px] h-[60px] bg-[#00f2ff] text-[#0A0A0A] rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,242,255,0.4)] ring-4 ring-[#050505] border border-white/20"
             >
               <Plus size={28} strokeWidth={2.5} />
             </motion.button>

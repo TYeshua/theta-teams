@@ -10,7 +10,7 @@ import { useState, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, AlertCircle, Loader2, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export function Login() {
   const { signIn, user } = useAuth();
@@ -52,7 +52,7 @@ export function Login() {
   }
 
   return (
-    <div className="w-full min-h-dvh flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a0a0a] to-[#030303] p-4 font-sans antialiased">
+    <div className="w-full min-h-dvh flex items-center justify-center bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-[#0a1a1a] to-[#030303] p-4 font-sans antialiased">
       
       {/* Card de Login com Glassmorphism */}
       <motion.div
@@ -64,11 +64,11 @@ export function Login() {
         {/* Logo / Marca */}
         <div className="flex flex-col items-center mb-10">
           <motion.div
-            animate={{ boxShadow: ['0 0 20px rgba(255,36,0,0.3)', '0 0 40px rgba(255,36,0,0.5)', '0 0 20px rgba(255,36,0,0.3)'] }}
+            animate={{ boxShadow: ['0 0 20px rgba(0,242,255,0.3)', '0 0 40px rgba(0,242,255,0.5)', '0 0 20px rgba(0,242,255,0.3)'] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-14 h-14 bg-[#ff2400] rounded-2xl flex items-center justify-center mb-4 shadow-[0_8px_30px_rgba(255,36,0,0.4)]"
+            className="w-14 h-14 bg-[#00f2ff] rounded-2xl flex items-center justify-center mb-4 shadow-[0_8px_30px_rgba(0,242,255,0.4)]"
           >
-            <Shield size={26} className="text-white" strokeWidth={2.5} />
+            <Shield size={26} className="text-[#0A0A0A]" strokeWidth={2.5} />
           </motion.div>
           <h1 className="text-2xl font-black text-white tracking-tight">THETA Teams</h1>
           <p className="text-[11px] text-neutral-500 uppercase tracking-widest mt-1">
@@ -92,7 +92,7 @@ export function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="seu@email.com"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ff2400]/60 focus:bg-white/[0.07] transition-all"
+              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#00f2ff]/60 focus:bg-white/[0.07] transition-all"
             />
           </div>
 
@@ -109,7 +109,7 @@ export function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ff2400]/60 focus:bg-white/[0.07] transition-all"
+              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#00f2ff]/60 focus:bg-white/[0.07] transition-all"
             />
           </div>
 
@@ -120,10 +120,10 @@ export function Login() {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="flex items-center gap-2 bg-[#ff2400]/10 border border-[#ff2400]/20 rounded-xl px-4 py-3"
+                className="flex items-center gap-2 bg-[#00f2ff]/10 border border-[#00f2ff]/20 rounded-xl px-4 py-3"
               >
-                <AlertCircle size={14} className="text-[#ff2400] shrink-0" />
-                <p className="text-[11px] text-[#ff2400] font-medium">{error}</p>
+                <AlertCircle size={14} className="text-[#00f2ff] shrink-0" />
+                <p className="text-[11px] text-[#00f2ff] font-medium">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -135,7 +135,7 @@ export function Login() {
             disabled={loading}
             whileHover={{ scale: loading ? 1 : 1.02 }}
             whileTap={{ scale: loading ? 1 : 0.97 }}
-            className="w-full mt-2 py-3.5 bg-[#ff2400] rounded-xl text-white text-sm font-black uppercase tracking-widest shadow-[0_8px_30px_rgba(255,36,0,0.35)] hover:bg-[#e82100] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full mt-2 py-3.5 bg-[#00f2ff] rounded-xl text-[#0A0A0A] text-sm font-black uppercase tracking-widest shadow-[0_8px_30px_rgba(0,242,255,0.35)] hover:bg-[#00d4ff] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -151,12 +151,22 @@ export function Login() {
           </motion.button>
         </form>
 
-        {/* Rodapé informativo */}
-        <p className="text-center text-[10px] text-neutral-600 mt-8 leading-relaxed">
-          Acesso controlado por convite.
-          <br />
-          Entre em contato com o Líder da sua equipe.
-        </p>
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <p className="text-[10px] text-neutral-500 uppercase tracking-widest">
+            Não possui uma conta?{' '}
+            <Link to="/signup" className="text-[#00f2ff] font-bold hover:underline transition-all">
+              Criar Conta
+            </Link>
+          </p>
+
+          {/* Rodapé informativo */}
+          <div className="w-full pt-6 border-t border-white/5 text-center">
+            <p className="text-[10px] text-neutral-600 leading-relaxed">
+              Líderes: Iniciem seu workspace instantaneamente.<br />
+              Colaboradores: Requer convite do seu Líder.
+            </p>
+          </div>
+        </div>
       </motion.div>
     </div>
   );

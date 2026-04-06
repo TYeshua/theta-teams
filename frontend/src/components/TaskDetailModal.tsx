@@ -13,8 +13,8 @@ export function TaskDetailModal({ task, onClose, onStatusChange }: TaskDetailMod
   const priority = getPriorityLevel(task);
   
   const colors = {
-    critical: 'text-[#ff2400] bg-[#ff2400]/10 border-[#ff2400]/30',
-    high: 'text-orange-500 bg-orange-500/10 border-orange-500/30',
+    critical: 'text-[#00f2ff] bg-[#00f2ff]/10 border-[#00f2ff]/30',
+    high: 'text-blue-500 bg-blue-500/10 border-blue-500/30',
     medium: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30',
     low: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30',
     uncalibrated: 'text-neutral-400 bg-white/5 border-white/10',
@@ -77,7 +77,7 @@ export function TaskDetailModal({ task, onClose, onStatusChange }: TaskDetailMod
             )}
             
             {task.is_fixed_schedule && (
-              <div className="flex items-center gap-1.5 text-xs text-[#ff2400] bg-[#ff2400]/10 px-2 py-1 rounded-md border border-[#ff2400]/20">
+              <div className="flex items-center gap-1.5 text-xs text-[#00f2ff] bg-[#00f2ff]/10 px-2 py-1 rounded-md border border-[#00f2ff]/20">
                 <Zap size={12} />
                 <span>Fixa</span>
               </div>

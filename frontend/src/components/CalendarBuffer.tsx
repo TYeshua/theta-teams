@@ -74,8 +74,8 @@ export function CalendarBuffer({ tasks, onStatusChange, onRefresh, isRefreshing 
   const renderTaskChip = (task: Task) => {
     const priority = getPriorityLevel(task);
     const colors = {
-      critical: 'bg-[#ff2400]/20 text-[#ff2400] border-[#ff2400]/40',
-      high: 'bg-orange-500/20 text-orange-500 border-orange-500/40',
+      critical: 'bg-[#00f2ff]/20 text-[#00f2ff] border-[#00f2ff]/40',
+      high: 'bg-blue-500/20 text-blue-500 border-blue-500/40',
       medium: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/40',
       low: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/40',
       uncalibrated: 'bg-white/10 text-neutral-300 border-white/20',

@@ -23,7 +23,7 @@ export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPla
         {/* Branding de Luxo THETA - Centralizado */}
         <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl font-black tracking-tighter text-white flex items-baseline justify-center gap-2 italic">
-            <span className="text-[#ff2400] drop-shadow-[0_0_15px_rgba(255,36,0,0.5)]">Θ</span> THETA
+            <span className="text-[#00f2ff] drop-shadow-[0_0_15px_rgba(0,242,255,0.5)]">Θ</span> THETA
           </h1>
           <p className="text-[9px] text-neutral-500 font-bold tracking-[0.25em] uppercase mt-0.5">
             Time & Habits Execution Tracking Algorithm
@@ -37,17 +37,17 @@ export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPla
             whileTap={{ scale: 0.85 }}
             transition={springTransition}
             onClick={onPlasticityOpen} 
-            className="w-10 h-10 rounded-full bg-[#ff2400]/10 border border-[#ff2400]/20 flex items-center justify-center text-[#ff2400] shadow-[0_0_15px_rgba(255,36,0,0.2)]"
+            className="w-10 h-10 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]"
           >
             <Crown size={18} strokeWidth={2.5} />
           </motion.button>
-
+          
           {/* Botão de Adicionar (Novo) */}
           <motion.button 
             whileTap={{ scale: 0.85 }}
             transition={springTransition}
             onClick={onAdd} 
-            className="w-10 h-10 rounded-full bg-[#ff2400]/10 border border-[#ff2400]/20 flex items-center justify-center text-[#ff2400] shadow-[0_0_15px_rgba(255,36,0,0.2)]"
+            className="w-10 h-10 rounded-full bg-[#00f2ff]/10 border border-[#00f2ff]/20 flex items-center justify-center text-[#00f2ff] shadow-[0_0_15px_rgba(0,242,255,0.2)]"
           >
             <Plus size={18} strokeWidth={2.5} />
           </motion.button>
@@ -59,8 +59,8 @@ export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPla
             onClick={onRefresh} 
             className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-500
               ${isLoading 
-                ? 'bg-[#ff2400]/20 border-[#ff2400]/40 text-white shadow-[0_0_20px_rgba(255,36,0,0.4)]' 
-                : 'bg-white/[0.03] border-white/[0.05] text-[#ff2400] hover:bg-[#ff2400]/5 hover:border-[#ff2400]/20'}`}
+                ? 'bg-[#00f2ff]/20 border-[#00f2ff]/40 text-white shadow-[0_0_20px_rgba(0,242,255,0.4)]' 
+                : 'bg-white/[0.03] border-white/[0.05] text-[#00f2ff] hover:bg-[#00f2ff]/5 hover:border-[#00f2ff]/20'}`}
           >
             <motion.div
               animate={isLoading ? { rotate: 360, scale: [1, 1.2, 1] } : {}}

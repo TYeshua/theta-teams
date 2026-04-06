@@ -18,7 +18,7 @@ export function TaskCard({ task, onCalibrate, onDelete, onStatusChange }: TaskCa
 
   // Paleta Restrita: Cinza Fosco, Branco, Laranja, Escarlate
   const categories: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-    'Petróleo': { icon: <Beaker size={12} strokeWidth={2.5} />, color: 'text-orange-500', bg: 'bg-orange-500/10 border-orange-500/20' },
+    'Petróleo': { icon: <Beaker size={12} strokeWidth={2.5} />, color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
     'Software': { icon: <Code size={12} strokeWidth={2.5} />, color: 'text-neutral-300', bg: 'bg-white/5 border-white/5' },
     'Pesquisa': { icon: <Compass size={12} strokeWidth={2.5} />, color: 'text-neutral-400', bg: 'bg-white/5 border-white/5' },
     'Geral': { icon: <AlertCircle size={12} strokeWidth={2.5} />, color: 'text-neutral-500', bg: 'bg-white/5 border-white/5' },
@@ -43,7 +43,7 @@ export function TaskCard({ task, onCalibrate, onDelete, onStatusChange }: TaskCa
       className={`
         relative group p-5 sm:p-6 rounded-[32px] bg-[#0A0A0A]/60 backdrop-blur-xl overflow-hidden
         border transition-colors duration-500
-        ${isCritical && !isDone ? 'border-[#ff2400]/30 shadow-[0_0_20px_rgba(255,36,0,0.1),inset_0_2px_10px_rgba(255,255,255,0.02)]' 
+        ${isCritical && !isDone ? 'border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.1),inset_0_2px_10px_rgba(255,255,255,0.02)]' 
         : 'border-white/[0.04] shadow-[0_10px_30px_rgba(0,0,0,0.5),inset_0_2px_10px_rgba(255,255,255,0.02)]'}
       `}
     >
@@ -52,7 +52,7 @@ export function TaskCard({ task, onCalibrate, onDelete, onStatusChange }: TaskCa
         <motion.div
           animate={{ opacity: [0.15, 0.25, 0.15] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-12 -right-12 w-48 h-48 bg-[#ff2400] blur-[70px] rounded-full pointer-events-none z-0"
+          className="absolute -top-12 -right-12 w-48 h-48 bg-[#00f2ff] blur-[70px] rounded-full pointer-events-none z-0"
         />
       )}
 
@@ -69,7 +69,7 @@ export function TaskCard({ task, onCalibrate, onDelete, onStatusChange }: TaskCa
               <motion.div 
                 animate={{ opacity: [0.6, 1, 0.6] }}
                 transition={{ repeat: Infinity, duration: 1.5 }}
-                className="flex items-center gap-1 text-[#ff2400] ml-1"
+                className="flex items-center gap-1 text-[#00f2ff] ml-1"
               >
                 <AlertCircle size={10} strokeWidth={3} />
                 <span className="text-[8px] font-black uppercase tracking-[0.2em]">Crítico</span>
@@ -113,7 +113,7 @@ export function TaskCard({ task, onCalibrate, onDelete, onStatusChange }: TaskCa
             </span>
             <div className="flex items-baseline gap-1">
               <span className={`text-xl font-black tabular-nums tracking-tighter transition-colors duration-500
-                ${isDone ? 'text-neutral-600' : isCritical ? 'text-[#ff2400] drop-shadow-[0_0_10px_rgba(255,36,0,0.4)]' : 'text-white'}`}>
+                ${isDone ? 'text-neutral-600' : isCritical ? 'text-[#00f2ff] drop-shadow-[0_0_10px_rgba(0,242,255,0.4)]' : 'text-white'}`}>
                 {task.priority_score.toFixed(1)}
               </span>
             </div>
@@ -122,7 +122,7 @@ export function TaskCard({ task, onCalibrate, onDelete, onStatusChange }: TaskCa
           <div className="flex gap-2 items-center">
             {/* Botão Secundário de Deletar (Ghost) */}
             <motion.button 
-              whileHover={{ scale: 1.1, backgroundColor: "rgba(255,36,0,0.1)", color: "#ff2400" }}
+              whileHover={{ scale: 1.1, backgroundColor: "rgba(0,242,255,0.1)", color: "#00f2ff" }}
               whileTap={{ scale: 0.9 }}
               onClick={() => onDelete(task.id)}
               className="p-2.5 rounded-full text-neutral-600 transition-colors"

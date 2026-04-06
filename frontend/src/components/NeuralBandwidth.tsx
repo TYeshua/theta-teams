@@ -31,15 +31,15 @@ export function NeuralBandwidth({ refreshKey }: NeuralBandwidthProps) {
   const isOverload = data?.status === 'Overload';
   const isHigh = data?.status === 'High';
   const activeColor = isOverload
-    ? '#dc143c'            // Scarlet
+    ? '#00f2ff'            // Cyan
     : isHigh
-    ? '#ff8c00'            // Orange
+    ? '#3b82f6'            // Blue
     : '#22c55e';           // Green
 
   const glowColor = isOverload
-    ? 'rgba(220,20,60,0.35)'
+    ? 'rgba(0,242,255,0.35)'
     : isHigh
-    ? 'rgba(255,140,0,0.30)'
+    ? 'rgba(59,130,246,0.30)'
     : 'rgba(34,197,94,0.20)';
 
   const statusLabel = data?.status ?? '—';
@@ -51,9 +51,9 @@ export function NeuralBandwidth({ refreshKey }: NeuralBandwidthProps) {
       style={{
         background: 'rgba(10,10,10,0.7)',
         borderColor: isOverload
-          ? 'rgba(220,20,60,0.30)'
+          ? 'rgba(0,242,255,0.30)'
           : isHigh
-          ? 'rgba(255,140,0,0.25)'
+          ? 'rgba(59,130,246,0.25)'
           : 'rgba(255,255,255,0.05)',
         boxShadow: isOverload || isHigh ? `0 0 24px ${glowColor}` : 'none',
         transition: 'box-shadow 0.4s, border-color 0.4s',
@@ -139,7 +139,7 @@ export function NeuralBandwidth({ refreshKey }: NeuralBandwidthProps) {
           className="absolute inset-0 pointer-events-none rounded-2xl"
           animate={{ opacity: [0, 0.12, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: 'radial-gradient(ellipse at center, #dc143c 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at center, #00f2ff 0%, transparent 70%)' }}
         />
       )}
     </div>

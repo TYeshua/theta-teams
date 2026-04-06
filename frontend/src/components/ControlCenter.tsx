@@ -85,7 +85,7 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
     >
       <div className="pt-16 px-6 pb-6 border-b border-white/[0.05] flex justify-between items-center">
         <div className="flex items-center gap-2">
-           <Activity size={20} className="text-[#ff2400]" />
+           <Activity size={20} className="text-[#00f2ff]" />
            <h2 className="text-xl font-black text-white tracking-tight uppercase">Sistema Theta</h2>
         </div>
         <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
               whileTap={{ scale: 0.85 }}
               onClick={onSignOut}
               title="Sair do sistema"
-              className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-neutral-500 hover:text-[#ff2400] transition-colors"
+              className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-neutral-500 hover:text-[#00f2ff] transition-colors"
             >
               <LogOut size={14} />
             </motion.button>
@@ -138,23 +138,23 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
              {/* Progress Bar */}
              <div className="w-full h-2 bg-white/[0.05] rounded-full overflow-hidden flex">
                 <div style={{ width: `${total ? (done/total)*100 : 0}%` }} className="h-full bg-neutral-600 transition-all duration-1000" />
-                <div style={{ width: `${total ? (active/total)*100 : 0}%` }} className="h-full bg-[#ff2400] transition-all duration-1000" />
+                <div style={{ width: `${total ? (active/total)*100 : 0}%` }} className="h-full bg-[#00f2ff] transition-all duration-1000" />
                 <div style={{ width: `${total ? (backlog/total)*100 : 0}%` }} className="h-full bg-neutral-800 transition-all duration-1000" />
              </div>
 
              {/* Engine Load */}
              <div className="flex justify-between items-center pt-2 border-t border-white/[0.05]">
                 <div className="flex items-center gap-2">
-                   <Database size={14} className="text-orange-500" />
+                   <Database size={14} className="text-blue-500" />
                    <span className="text-xs font-bold text-neutral-300">Carga Média Algoritmo</span>
                 </div>
-                <span className={`font-black tracking-wider ${avgLoad > 2.0 ? 'text-[#ff2400]' : 'text-white'}`}>
+                <span className={`font-black tracking-wider ${avgLoad > 2.0 ? 'text-[#00f2ff]' : 'text-white'}`}>
                    {avgLoad} pts
                 </span>
              </div>
 
              {criticalCount > 0 && (
-                 <div className="flex items-center gap-2 bg-[#ff2400]/20 text-[#ff2400] p-3 rounded-xl border border-[#ff2400]/30">
+                 <div className="flex items-center gap-2 bg-[#00f2ff]/20 text-[#00f2ff] p-3 rounded-xl border border-[#00f2ff]/30">
                      <AlertTriangle size={16} />
                      <span className="text-xs font-bold uppercase tracking-wider">{criticalCount} Módulos em Alerta Crítico</span>
                  </div>
@@ -187,7 +187,7 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
                className={`flex justify-between items-center border p-4 rounded-2xl transition-colors active:scale-[0.98] ${done === 0 ? 'opacity-50 grayscale cursor-not-allowed border-white/[0.03] bg-white/[0.02]' : 'bg-neutral-900 border-neutral-700 hover:bg-neutral-800'}`}
             >
               <div className="flex items-center gap-4">
-                <Trash2 size={20} className={done > 0 ? "text-orange-500" : "text-neutral-500"} />
+                <Trash2 size={20} className={done > 0 ? "text-blue-500" : "text-neutral-500"} />
                 <div className="text-left">
                   <div className="text-sm font-bold text-white uppercase tracking-wider">Limpar Concluídos</div>
                   <div className="text-[10px] text-neutral-500 font-medium">Remove todos os módulos marcados como 'Concluído'</div>
@@ -201,18 +201,18 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
         {/* --- DANGER ZONE — apenas para Líder --- */}
         {isLeader && (
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] text-[#ff2400]/50 font-bold uppercase tracking-widest px-2">Zona de Perigo</span>
+            <span className="text-[10px] text-[#00f2ff]/50 font-bold uppercase tracking-widest px-2">Zona de Perigo</span>
             
             <button 
                onClick={handleReset}
                disabled={isResetting || total === 0}
-               className="flex justify-between items-center bg-[#ff2400]/10 border border-[#ff2400]/20 p-4 rounded-2xl hover:bg-[#ff2400]/20 transition-colors active:scale-95"
+               className="flex justify-between items-center bg-[#00f2ff]/10 border border-[#00f2ff]/20 p-4 rounded-2xl hover:bg-[#00f2ff]/20 transition-colors active:scale-95"
             >
               <div className="flex items-center gap-4">
-                <Power size={20} className="text-[#ff2400]" />
+                <Power size={20} className="text-[#00f2ff]" />
                 <div className="text-left">
-                  <div className="text-sm font-bold text-[#ff2400] uppercase tracking-wider">Restauração de Fábrica</div>
-                  <div className="text-[10px] text-[#ff2400]/60 font-medium">Limpar todo o buffer e inicializar do zero</div>
+                  <div className="text-sm font-bold text-[#00f2ff] uppercase tracking-wider">Restauração de Fábrica</div>
+                  <div className="text-[10px] text-[#00f2ff]/60 font-medium">Limpar todo o buffer e inicializar do zero</div>
                 </div>
               </div>
             </button>

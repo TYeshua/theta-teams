@@ -47,8 +47,8 @@ export function CalibrateModal({ task, onClose, onCalibrate }: CalibrateModalPro
   // Lógica do Indicador Visual de Resistência
   const currentEffortIndex = EFFORT_OPTIONS.indexOf(effort);
   const getFrictionColor = () => {
-    if (effort === 13) return 'bg-[#ff2400] shadow-[0_0_12px_rgba(255,36,0,0.6)]'; // Crítico (Escarlate)
-    if (effort >= 5) return 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.4)]'; // Pesado (Laranja)
+    if (effort === 13) return 'bg-[#00f2ff] shadow-[0_0_12px_rgba(0,242,255,0.6)]'; // Crítico (Ciano)
+    if (effort >= 5) return 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.4)]'; // Pesado (Azul)
     return 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.2)]'; // Normal (Branco)
   };
 
@@ -101,8 +101,8 @@ export function CalibrateModal({ task, onClose, onCalibrate }: CalibrateModalPro
             
             <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-2">Score Projetado</p>
             <div className={`text-4xl font-black tabular-nums tracking-tighter transition-all duration-500
-              ${isCritical ? 'text-[#ff2400] drop-shadow-[0_0_20px_rgba(255,36,0,0.6)]' 
-              : isHigh ? 'text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.4)]' 
+              ${isCritical ? 'text-[#00f2ff] drop-shadow-[0_0_20px_rgba(0,242,255,0.6)]' 
+              : isHigh ? 'text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]' 
               : 'text-white'}`}>
               {previewScore(urgency, effort)}
             </div>
@@ -113,7 +113,7 @@ export function CalibrateModal({ task, onClose, onCalibrate }: CalibrateModalPro
                   size={14} 
                   className={`transition-all duration-500 ${
                     (isCritical && i < 3) || (isHigh && i < 2) || (score >= 0.8 && i < 1) 
-                    ? isCritical ? 'text-[#ff2400]' : isHigh ? 'text-orange-500' : 'text-neutral-300'
+                    ? isCritical ? 'text-[#00f2ff]' : isHigh ? 'text-blue-500' : 'text-neutral-300'
                     : 'text-neutral-800'
                   }`} 
                   fill="currentColor" 
@@ -200,7 +200,7 @@ export function CalibrateModal({ task, onClose, onCalibrate }: CalibrateModalPro
 
             {error && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <p className="text-[10px] font-bold text-[#ff2400] bg-[#ff2400]/10 border border-[#ff2400]/20 rounded-xl px-4 py-3 uppercase tracking-widest mt-2">
+                <p className="text-[10px] font-bold text-[#00f2ff] bg-[#00f2ff]/10 border border-[#00f2ff]/20 rounded-xl px-4 py-3 uppercase tracking-widest mt-2">
                   {error}
                 </p>
               </motion.div>

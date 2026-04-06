@@ -43,8 +43,8 @@ export function NeuralPlasticity({ onClose }: NeuralPlasticityProps) {
     >
       <div className="flex justify-between items-center z-10 relative mt-10">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-[#ff2400]/10 border border-[#ff2400]/30 shadow-[0_0_20px_rgba(255,36,0,0.3)]">
-            <Brain size={24} className="text-[#ff2400]" strokeWidth={2.5} />
+          <div className="p-2.5 rounded-2xl bg-[#00f2ff]/10 border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.3)]">
+            <Brain size={24} className="text-[#00f2ff]" strokeWidth={2.5} />
           </div>
           <div>
             <h2 className="text-xl font-black text-white tracking-tight uppercase">Plasticidade Neural</h2>
@@ -66,7 +66,7 @@ export function NeuralPlasticity({ onClose }: NeuralPlasticityProps) {
         
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="w-12 h-12 border-2 border-[#ff2400]/20 border-t-[#ff2400] rounded-full animate-spin shadow-[0_0_15px_rgba(255,36,0,0.3)]"></div>
+            <div className="w-12 h-12 border-2 border-[#00f2ff]/20 border-t-[#00f2ff] rounded-full animate-spin shadow-[0_0_15px_rgba(0,242,255,0.3)]"></div>
           </div>
         ) : (
           <>
@@ -85,9 +85,9 @@ export function NeuralPlasticity({ onClose }: NeuralPlasticityProps) {
                   <Radar
                     name="Level"
                     dataKey="level"
-                    stroke="#ff2400"
+                    stroke="#00f2ff"
                     strokeWidth={2}
-                    fill="#ff2400"
+                    fill="#00f2ff"
                     fillOpacity={0.2}
                   />
                 </RadarChart>
@@ -109,7 +109,7 @@ export function NeuralPlasticity({ onClose }: NeuralPlasticityProps) {
                   className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-4 flex flex-col gap-3 relative overflow-hidden"
                 >
                   {/* Fundo iluminado sutil */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff2400]/[0.02] blur-3xl rounded-full" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#00f2ff]/[0.02] blur-3xl rounded-full" />
                   
                   <div className="flex justify-between items-end relative z-10">
                     <div>
@@ -118,7 +118,7 @@ export function NeuralPlasticity({ onClose }: NeuralPlasticityProps) {
                     </div>
                     <div className="text-right">
                       <div className="text-xl font-black text-white italic tracking-tighter">
-                        {Math.floor(stat.total_xp)} <span className="text-[12px] text-[#ff2400] font-bold not-italic">XP</span>
+                        {Math.floor(stat.total_xp)} <span className="text-[12px] text-[#00f2ff] font-bold not-italic">XP</span>
                       </div>
                       <div className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest">Global</div>
                     </div>

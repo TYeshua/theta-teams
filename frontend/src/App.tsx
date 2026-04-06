@@ -20,6 +20,7 @@ import { useAuth } from './hooks/useAuth';
 
 // Lazy loading: melhora o tempo de carregamento inicial
 const Login     = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
+const Signup    = lazy(() => import('./pages/Signup').then(m => ({ default: m.Signup })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Workbench = lazy(() => import('./pages/Workbench').then(m => ({ default: m.Workbench })));
 
@@ -82,7 +83,7 @@ function RootRedirect() {
 // ---------------------------------------------------------------------------
 function DashboardWrapper() {
   return (
-    <div className="w-full min-h-dvh flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a1a1a] to-[#030303] p-0 sm:p-4 font-sans text-gray-100 antialiased selection:bg-[#ff2400]/30 overflow-hidden">
+    <div className="w-full min-h-dvh flex items-center justify-center bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-[#0a1a1a] to-[#030303] p-0 sm:p-4 font-sans text-gray-100 antialiased selection:bg-[#00f2ff]/30 overflow-hidden">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -120,6 +121,7 @@ function AppRoutes() {
       <Routes>
         {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Rota raiz: redireciona por role */}
         <Route path="/" element={<RootRedirect />} />

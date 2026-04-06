@@ -29,8 +29,8 @@ import type { Task, TaskStatus } from '../types/task';
 // ---------------------------------------------------------------------------
 const STATUS_CONFIG = {
   backlog: { label: 'Backlog', color: 'text-neutral-500 bg-neutral-500/10 border-neutral-500/20' },
-  todo:    { label: 'A Fazer', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  in_progress: { label: 'Em Progresso', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+  todo:    { label: 'A Fazer', color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20' },
+  in_progress: { label: 'Em Progresso', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
   done:    { label: 'Concluída', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
 } as const;
 
@@ -173,7 +173,7 @@ export function Workbench() {
         {/* Badges de contagem + Logout */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20">
+            <span className="text-[10px] font-bold text-blue-400 bg-blue-400/10 px-2.5 py-1 rounded-full border border-blue-400/20">
               {pendingCount} pendente{pendingCount !== 1 ? 's' : ''}
             </span>
             <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20">
@@ -185,7 +185,7 @@ export function Workbench() {
             whileTap={{ scale: 0.9 }}
             onClick={handleSignOut}
             title="Sair do sistema"
-            className="p-2 text-neutral-500 hover:text-[#ff2400] transition-colors"
+            className="p-2 text-neutral-500 hover:text-[#00f2ff] transition-colors"
           >
             <LogOut size={18} strokeWidth={1.5} />
           </motion.button>
@@ -222,15 +222,15 @@ export function Workbench() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-16 gap-4 bg-[#ff2400]/10 rounded-[24px] border border-[#ff2400]/20"
+            className="flex flex-col items-center justify-center py-16 gap-4 bg-[#00f2ff]/10 rounded-[24px] border border-[#00f2ff]/20"
           >
-            <ServerCrash size={28} className="text-[#ff2400]/60" />
-            <p className="text-[10px] font-black text-[#ff2400] uppercase tracking-widest">
+            <ServerCrash size={28} className="text-[#00f2ff]/60" />
+            <p className="text-[10px] font-black text-[#00f2ff] uppercase tracking-widest">
               Falha na Conexão
             </p>
             <button
               onClick={fetchTasks}
-              className="px-5 py-2 bg-[#ff2400]/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-[#ff2400]/30 text-[#ff2400] hover:bg-[#ff2400]/30 transition-colors"
+              className="px-5 py-2 bg-[#00f2ff]/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-[#00f2ff]/30 text-[#00f2ff] hover:bg-[#00f2ff]/30 transition-colors"
             >
               Tentar Novamente
             </button>

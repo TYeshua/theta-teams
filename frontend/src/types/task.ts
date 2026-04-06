@@ -37,8 +37,8 @@ export interface TaskCalibrate {
 
 // Thresholds do sistema de chamas
 export const SCORE_THRESHOLDS = {
-  CRITICAL: 2.5,   // 🔥🔥🔥 vermelho pulsante
-  HIGH: 1.5,       // 🔥🔥 laranja
+  CRITICAL: 2.5,   // 🔥🔥🔥 ciano pulsante
+  HIGH: 1.5,       // 🔥🔥 azul brilhante
   MEDIUM: 0.8,     // 🔥 amarelo
   LOW: 0,          // sem chama
 } as const;
