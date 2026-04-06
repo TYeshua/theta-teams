@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Activity, Database, Trash2, Power, RefreshCw, AlertTriangle } from 'lucide-react';
+import { X, Activity, Database, Trash2, Power, RefreshCw, AlertTriangle, LogOut, Users } from 'lucide-react';
 import type { Task } from '../types/task';
 
 interface ControlCenterProps {
@@ -9,9 +9,12 @@ interface ControlCenterProps {
   onPurgeDone: () => Promise<void>;
   onFactoryReset: () => Promise<void>;
   onForceSync: () => Promise<void>;
+  // RBAC: props opcionais para controle por cargo
+  isLeader?: boolean;
+  onSignOut?: () => Promise<void>;
 }
 
-export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onForceSync }: ControlCenterProps) {
+export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onForceSync, isLeader = true, onSignOut }: ControlCenterProps) {
   const [isPurging, setIsPurging] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -85,13 +88,27 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
            <Activity size={20} className="text-[#ff2400]" />
            <h2 className="text-xl font-black text-white tracking-tight uppercase">Sistema Theta</h2>
         </div>
-        <motion.button 
-           whileTap={{ scale: 0.85 }} 
-           onClick={onClose} 
-           className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
-        >
-          <X size={16} />
-        </motion.button>
+        <div className="flex items-center gap-2">
+          {/* Botão Sair — exibido para todos os usuários */}
+          {onSignOut && (
+            <motion.button
+              id="control-center-signout-btn"
+              whileTap={{ scale: 0.85 }}
+              onClick={onSignOut}
+              title="Sair do sistema"
+              className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-neutral-500 hover:text-[#ff2400] transition-colors"
+            >
+              <LogOut size={14} />
+            </motion.button>
+          )}
+          <motion.button 
+             whileTap={{ scale: 0.85 }} 
+             onClick={onClose} 
+             className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </motion.button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24 flex flex-col gap-8">
@@ -181,24 +198,40 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
           </div>
         </div>
 
-        {/* --- DANGER ZONE --- */}
-        <div className="flex flex-col gap-3">
-          <span className="text-[10px] text-[#ff2400]/50 font-bold uppercase tracking-widest px-2">Zona de Perigo</span>
-          
-          <button 
-             onClick={handleReset}
-             disabled={isResetting || total === 0}
-             className="flex justify-between items-center bg-[#ff2400]/10 border border-[#ff2400]/20 p-4 rounded-2xl hover:bg-[#ff2400]/20 transition-colors active:scale-95"
-          >
-            <div className="flex items-center gap-4">
-              <Power size={20} className="text-[#ff2400]" />
-              <div className="text-left">
-                <div className="text-sm font-bold text-[#ff2400] uppercase tracking-wider">Restauração de Fábrica</div>
-                <div className="text-[10px] text-[#ff2400]/60 font-medium">Limpar todo o buffer e inicializar do zero</div>
+        {/* --- DANGER ZONE — apenas para Líder --- */}
+        {isLeader && (
+          <div className="flex flex-col gap-3">
+            <span className="text-[10px] text-[#ff2400]/50 font-bold uppercase tracking-widest px-2">Zona de Perigo</span>
+            
+            <button 
+               onClick={handleReset}
+               disabled={isResetting || total === 0}
+               className="flex justify-between items-center bg-[#ff2400]/10 border border-[#ff2400]/20 p-4 rounded-2xl hover:bg-[#ff2400]/20 transition-colors active:scale-95"
+            >
+              <div className="flex items-center gap-4">
+                <Power size={20} className="text-[#ff2400]" />
+                <div className="text-left">
+                  <div className="text-sm font-bold text-[#ff2400] uppercase tracking-wider">Restauração de Fábrica</div>
+                  <div className="text-[10px] text-[#ff2400]/60 font-medium">Limpar todo o buffer e inicializar do zero</div>
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
+
+        {/* Gerenciar Equipe — apenas para Líder */}
+        {isLeader && (
+          <div className="flex flex-col gap-3">
+            <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest px-2">Gerenciar Equipe</span>
+            <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.03] p-4 rounded-2xl">
+              <Users size={18} className="text-neutral-400" />
+              <div>
+                <div className="text-sm font-bold text-white uppercase tracking-wider">Team Management</div>
+                <div className="text-[10px] text-neutral-500 font-medium">Cadastre e gerencie colaboradores</div>
               </div>
             </div>
-          </button>
-        </div>
+          </div>
+        )}
 
       </div>
     </motion.div>

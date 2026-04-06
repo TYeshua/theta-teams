@@ -1,8 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 psycopg2-binary
-pydantic
-python-multipart
 python-dotenv
-alembic
+PyJWT[crypto]
+supabase
+httpx

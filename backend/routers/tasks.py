@@ -1,3 +1,15 @@
+"""
+routers/tasks.py — Rotas de Tasks com RBAC completo para o THETA Teams.
+
+Regras de acesso:
+  - GET  /tasks       → Líder: todas as tasks do team. Colaborador: apenas as suas.
+  - POST /tasks       → Apenas Líder (require_leader).
+  - PUT  /tasks/{id}  → Líder: todos os campos. Colaborador: apenas `status`.
+  - DELETE /tasks/{id} → Apenas Líder.
+  - Rotas de manutenção → Apenas Líder.
+  - Workspace Pessoal → tasks com team_id=NULL visíveis apenas ao created_by.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -5,6 +17,8 @@ from datetime import datetime, timezone
 
 import models, schemas
 from database import get_db
+from auth import get_current_user, require_leader
+from schemas import UserProfile, RoleEnum
 
 router = APIRouter(
     prefix="/tasks",
@@ -12,8 +26,9 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 # ---------------------------------------------------------------------------
-# Motor de Prioridade Dinâmico
+# Motor de Prioridade Dinâmico (inalterado do B2C)
 # ---------------------------------------------------------------------------
 def calculate_dynamic_score(task: models.Task, current_context: Optional[str] = None) -> float:
     now_utc = datetime.now(timezone.utc)
@@ -39,9 +54,7 @@ def calculate_dynamic_score(task: models.Task, current_context: Optional[str] = 
 
 
 # ---------------------------------------------------------------------------
-# Helper: serialização 100% segura ORM → TaskResponse
-# Evita "Input should be a valid dictionary or object to extract fields from"
-# quando campos como priority_score, created_at, updated_at são NULL no banco.
+# Helper: serialização defensiva ORM → TaskResponse
 # ---------------------------------------------------------------------------
 def _safe_task_response(task: models.Task) -> schemas.TaskResponse:
     now_fallback = datetime.now(timezone.utc)
@@ -62,16 +75,30 @@ def _safe_task_response(task: models.Task) -> schemas.TaskResponse:
         priority_score=float(task.priority_score) if task.priority_score is not None else 0.0,
         created_at=task.created_at or now_fallback,
         updated_at=task.updated_at or now_fallback,
+        # Campos B2B
+        team_id=task.team_id,
+        assigned_to=task.assigned_to,
+        created_by=task.created_by,
     )
 
 
 # ---------------------------------------------------------------------------
-# CRUD
+# POST /tasks — Criar task (apenas Líder)
 # ---------------------------------------------------------------------------
-
-@router.post("/", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
 @router.post("", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
-def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
+def create_task(
+    task: schemas.TaskCreate,
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(require_leader),
+):
+    """
+    Cria uma nova task. Restrito a Líderes.
+
+    - Se `team_id` for None, a task será salva no Workspace Pessoal do líder.
+    - `assigned_to` define o colaborador responsável (obrigatório para tasks de equipe).
+    - `created_by` é preenchido automaticamente com o user_id do líder logado.
+    """
     now = datetime.now(timezone.utc)
 
     urgency: Optional[int] = task.urgency
@@ -80,6 +107,7 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
     priority_score = 0.0
     new_status = task.status or "backlog"
 
+    # Calcula prioridade se urgência e esforço forem informados
     if urgency and effort and effort > 0:
         base_score = urgency / effort
         deadline_multiplier = 1.0
@@ -121,6 +149,10 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
         priority_score=priority_score,
         created_at=now,
         updated_at=now,
+        # Campos B2B — preenchidos automaticamente
+        team_id=task.team_id or current_user.team_id,
+        assigned_to=task.assigned_to,
+        created_by=current_user.id,
     )
 
     db.add(db_task)
@@ -129,12 +161,13 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
     return _safe_task_response(db_task)
 
 
+# ---------------------------------------------------------------------------
+# GET /tasks/capacity — Neural Bandwidth (sem auth para manter compatibilidade)
+# ---------------------------------------------------------------------------
 @router.get("/capacity")
 @router.get("/capacity/")
 def get_capacity(db: Session = Depends(get_db)):
-    """
-    Neural Bandwidth — Telemetria de capacidade cognitiva ativa.
-    """
+    """Telemetria de capacidade cognitiva ativa."""
     MAX_CAPACITY = 40
 
     active_tasks = db.query(models.Task).filter(
@@ -162,12 +195,53 @@ def get_capacity(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/", response_model=List[schemas.TaskResponse])
+# ---------------------------------------------------------------------------
+# GET /tasks — Listar tasks (filtrado por role e team_id)
+# ---------------------------------------------------------------------------
 @router.get("", response_model=List[schemas.TaskResponse])
-def get_tasks(skip: int = 0, limit: int = 100, current_context: Optional[str] = None, db: Session = Depends(get_db)):
+@router.get("/", response_model=List[schemas.TaskResponse])
+def get_tasks(
+    skip: int = 0,
+    limit: int = 100,
+    current_context: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+):
+    """
+    Retorna tasks de acordo com o cargo do usuário:
+
+    LIDER:
+      - Vê todas as tasks do seu team_id.
+      - Vê tasks do Workspace Pessoal (team_id = NULL e created_by = seu id).
+
+    COLABORADOR:
+      - Vê apenas tasks do seu team_id onde assigned_to = seu user_id.
+    """
     import traceback
     try:
-        tasks = db.query(models.Task).all()
+        query = db.query(models.Task)
+
+        if current_user.role == RoleEnum.LIDER:
+            # Líder: tasks do time + Workspace Pessoal
+            query = query.filter(
+                (
+                    (models.Task.team_id == current_user.team_id) |
+                    (
+                        (models.Task.team_id == None) &
+                        (models.Task.created_by == current_user.id)
+                    )
+                )
+            )
+        else:
+            # Colaborador: apenas tasks atribuídas a ele na equipe
+            query = query.filter(
+                models.Task.team_id == current_user.team_id,
+                models.Task.assigned_to == current_user.id,
+            )
+
+        tasks = query.all()
+
+        # Aplica o motor de pontuação dinâmica
         for task in tasks:
             task._temp_score = calculate_dynamic_score(task, current_context)
 
@@ -209,26 +283,65 @@ def get_tasks(skip: int = 0, limit: int = 100, current_context: Optional[str] = 
         )
 
 
+# ---------------------------------------------------------------------------
+# GET /tasks/{task_id} — Buscar task por ID
+# ---------------------------------------------------------------------------
 @router.get("/{task_id}", response_model=schemas.TaskResponse)
-def get_task(task_id: int, db: Session = Depends(get_db)):
+def get_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+):
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task não encontrada")
+
+    # Valida que o usuário tem permissão para ver esta task
+    _check_task_access(db_task, current_user)
+
     return _safe_task_response(db_task)
 
 
+# ---------------------------------------------------------------------------
+# PUT /tasks/{task_id} — Atualizar task
+# ---------------------------------------------------------------------------
 @router.put("/{task_id}", response_model=schemas.TaskResponse)
-def update_task(task_id: int, task_update: schemas.TaskUpdate, db: Session = Depends(get_db)):
+def update_task(
+    task_id: int,
+    task_update: schemas.TaskUpdate,
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(get_current_user),
+):
+    """
+    Atualiza uma task existente com regras de RBAC:
+
+    LIDER: pode alterar qualquer campo (título, descrição, prazo, status, etc.)
+    COLABORADOR: pode alterar APENAS o campo `status` de tasks atribuídas a ele.
+                 Qualquer outro campo enviado será ignorado silenciosamente.
+    """
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task não encontrada")
 
+    _check_task_access(db_task, current_user)
+
     old_status = db_task.status
     update_data = task_update.model_dump(exclude_unset=True)
+
+    if current_user.role == RoleEnum.COLABORADOR:
+        # Colaborador: ignora tudo exceto `status`
+        update_data = {k: v for k, v in update_data.items() if k == "status"}
+
+        if not update_data:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Colaboradores só podem alterar o status da demanda.",
+            )
+
     for key, value in update_data.items():
         setattr(db_task, key, value)
 
-    # --- Motor de Plasticidade Neural (Sistema de XP) ---
+    # Motor de XP: registra log ao completar uma task
     if old_status != "done" and db_task.status == "done":
         base_xp = float(db_task.effort) if db_task.effort and db_task.effort > 0 else 1.0
         current_score = db_task.priority_score if db_task.priority_score else calculate_dynamic_score(db_task)
@@ -248,41 +361,47 @@ def update_task(task_id: int, task_update: schemas.TaskUpdate, db: Session = Dep
     return _safe_task_response(db_task)
 
 
+# ---------------------------------------------------------------------------
+# PUT /tasks/{task_id}/calibrate — Calibrar prioridade (apenas Líder)
+# ---------------------------------------------------------------------------
 @router.put("/{task_id}/calibrate", response_model=schemas.TaskResponse)
-def calibrate_task(task_id: int, config: schemas.TaskCalibrate, db: Session = Depends(get_db)):
+def calibrate_task(
+    task_id: int,
+    config: schemas.TaskCalibrate,
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(require_leader),
+):
     """
-    Motor de Prioridade Implacável — É aqui que a procrastinação paga o preço.
+    Motor de Prioridade Implacável.
 
     Fórmula base:   score = urgency / effort
-
-    Multiplicador de prazo (deadline_multiplier):
-      • Prazo atrasado (já passou):        x 5.0
-      • Menos de 1 dia restante:           x 4.0
-      • Entre 1 e 3 dias restantes:        x 2.5
-      • Entre 3 e 7 dias restantes:        x 1.5
-      • Mais de 7 dias restantes:          x 1.0
-      • Sem prazo definido:               x 1.0
+    Multiplicadores de prazo:
+      • Prazo atrasado:    x 5.0
+      • < 1 dia:           x 4.0
+      • 1–3 dias:          x 2.5
+      • 3–7 dias:          x 1.5
+      • 7+ dias ou sem:    x 1.0
     """
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task não encontrada")
 
+    _check_task_access(db_task, current_user)
+
     if config.effort <= 0:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="O esforço (effort) precisa ser maior que zero. Valores Fibonacci válidos: 1, 2, 3, 5, 8, 13..."
+            detail="O esforço (effort) precisa ser maior que zero.",
         )
 
     now = datetime.now(timezone.utc)
-
     deadline_multiplier = 1.0
+
     if db_task.due_date:
         due = db_task.due_date
         if due.tzinfo is None:
             due = due.replace(tzinfo=timezone.utc)
-
         days_remaining = (due - now).total_seconds() / 86400
-
         if days_remaining < 0:
             deadline_multiplier = 5.0
         elif days_remaining < 1:
@@ -291,9 +410,8 @@ def calibrate_task(task_id: int, config: schemas.TaskCalibrate, db: Session = De
             deadline_multiplier = 2.5
         elif days_remaining < 7:
             deadline_multiplier = 1.5
-        else:
-            deadline_multiplier = 1.0
 
+    # Considera o prazo do filho mais urgente
     children = db.query(models.Task).filter(models.Task.parent_id == task_id).all()
     for child in children:
         if child.due_date and child.status != "done":
@@ -301,13 +419,11 @@ def calibrate_task(task_id: int, config: schemas.TaskCalibrate, db: Session = De
             if c_due.tzinfo is None:
                 c_due = c_due.replace(tzinfo=timezone.utc)
             c_days = (c_due - now).total_seconds() / 86400
-
             c_mult = 1.0
             if c_days < 0: c_mult = 5.0
             elif c_days < 1: c_mult = 4.0
             elif c_days < 3: c_mult = 2.5
             elif c_days < 7: c_mult = 1.5
-
             if c_mult > deadline_multiplier:
                 deadline_multiplier = c_mult
 
@@ -334,8 +450,15 @@ def calibrate_task(task_id: int, config: schemas.TaskCalibrate, db: Session = De
     return _safe_task_response(db_task)
 
 
+# ---------------------------------------------------------------------------
+# DELETE /tasks/{task_id} — Deletar task (apenas Líder)
+# ---------------------------------------------------------------------------
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(get_db)):
+def delete_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(require_leader),
+):
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task não encontrada")
@@ -344,19 +467,81 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
     return None
 
 
+# ---------------------------------------------------------------------------
+# DELETE /tasks/maintenance/purge-done — Limpar tasks concluídas (Líder)
+# ---------------------------------------------------------------------------
 @router.delete("/maintenance/purge-done", status_code=status.HTTP_204_NO_CONTENT)
-def purge_done_tasks(db: Session = Depends(get_db)):
-    """Remove definitivamente todas as tasks com status 'done'."""
-    done_tasks = db.query(models.Task).filter(models.Task.status == "done").all()
-    for t in done_tasks:
+def purge_done_tasks(
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(require_leader),
+):
+    """Remove definitivamente todas as tasks com status 'done' da equipe."""
+    query = db.query(models.Task).filter(models.Task.status == "done")
+
+    if current_user.team_id:
+        query = query.filter(models.Task.team_id == current_user.team_id)
+
+    for t in query.all():
         db.delete(t)
     db.commit()
     return None
 
 
+# ---------------------------------------------------------------------------
+# DELETE /tasks/maintenance/factory-reset — Reset total (Líder)
+# ---------------------------------------------------------------------------
 @router.delete("/maintenance/factory-reset", status_code=status.HTTP_204_NO_CONTENT)
-def factory_reset(db: Session = Depends(get_db)):
-    """DANGER ZONE: Limpa todo o buffer de módulos (tasks)."""
-    db.query(models.Task).delete()
+def factory_reset(
+    db: Session = Depends(get_db),
+    current_user: UserProfile = Depends(require_leader),
+):
+    """DANGER ZONE: Limpa todas as tasks da equipe do Líder logado."""
+    if current_user.team_id:
+        db.query(models.Task).filter(
+            models.Task.team_id == current_user.team_id
+        ).delete()
+    else:
+        # Workspace Pessoal
+        db.query(models.Task).filter(
+            models.Task.created_by == current_user.id,
+            models.Task.team_id == None,
+        ).delete()
     db.commit()
     return None
+
+
+# ---------------------------------------------------------------------------
+# Helper interno: verifica se o usuário tem acesso à task
+# ---------------------------------------------------------------------------
+def _check_task_access(task: models.Task, user: UserProfile) -> None:
+    """
+    Valida acesso à task baseado no cargo do usuário.
+    Lança HTTP 403 se o acesso for negado.
+
+    Regras:
+    - Workspace Pessoal (team_id = None): apenas o created_by pode ver.
+    - Líder: vê todas as tasks do seu team_id.
+    - Colaborador: vê apenas tasks atribuídas a ele.
+    """
+    # Workspace Pessoal
+    if task.team_id is None:
+        if task.created_by != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acesso negado: esta task pertence ao Workspace Pessoal de outro usuário.",
+            )
+        return
+
+    # Verifica que a task pertence ao time do usuário
+    if task.team_id != user.team_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado: esta task não pertence à sua equipe.",
+        )
+
+    # Colaborador só vê tasks atribuídas a ele
+    if user.role == RoleEnum.COLABORADOR and task.assigned_to != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado: esta demanda não está atribuída a você.",
+        )

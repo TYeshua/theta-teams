@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ServerCrash, Inbox, Menu, Plus, LayoutGrid, Clock, X } from 'lucide-react';
+import { ServerCrash, Inbox, Menu, Plus, LayoutGrid, Clock, X, Users } from 'lucide-react';
 import { useTasks } from '../hooks/useTasks';
+import { useAuth } from '../hooks/useAuth';
 import { Header } from '../components/Header';
 import { TaskCard } from '../components/TaskCard';
 import { AddTaskModal } from '../components/AddTaskModal';
@@ -16,6 +17,9 @@ import { SCORE_THRESHOLDS } from '../types/task';
 type ThetaContext = 'Foco Matinal' | 'Intervalo Rápido' | 'Pesquisa/Noite';
 
 export function Dashboard() {
+  // Contexto de autenticação: expõe role e ações de auth
+  const { isLeader, signOut } = useAuth();
+
   const [thetaContext, setThetaContext] = useState<ThetaContext>('Foco Matinal');
   
   const contextMap: Record<ThetaContext, ContextMode> = {
@@ -140,21 +144,38 @@ export function Dashboard() {
           <Menu size={22} strokeWidth={1.5} />
         </motion.button>
         
-        {/* FAB (Centro) - Atualizado para Escarlate Sólido */}
+        {/*
+          FAB (Centro) — RBAC: apenas o Líder pode criar novas demandas.
+          O botão FAB e o modal AddTask ficam ocultos para Colaboradores.
+          Colaboradores veem um ícone de equipe desabilitado no lugar.
+        */}
         <div className="relative -top-7">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.92 }}
-            transition={springTransition}
-            onClick={() => setShowAdd(true)}
-            className="w-[60px] h-[60px] bg-[#ff2400] text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(255,36,0,0.4)] ring-4 ring-[#050505] border border-white/20"
-          >
-            <Plus size={28} strokeWidth={2.5} />
-          </motion.button>
+          {isLeader() ? (
+            <motion.button
+              id="dashboard-new-task-btn"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.92 }}
+              transition={springTransition}
+              onClick={() => setShowAdd(true)}
+              title="Nova Demanda (somente Líder)"
+              className="w-[60px] h-[60px] bg-[#ff2400] text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(255,36,0,0.4)] ring-4 ring-[#050505] border border-white/20"
+            >
+              <Plus size={28} strokeWidth={2.5} />
+            </motion.button>
+          ) : (
+            /* Colaborador: exibe ícone de equipe desabilitado */
+            <div
+              title="Criação de demandas restrita ao Líder"
+              className="w-[60px] h-[60px] bg-neutral-800/60 text-neutral-600 rounded-full flex items-center justify-center ring-4 ring-[#050505] border border-white/[0.05] cursor-not-allowed"
+            >
+              <Users size={24} strokeWidth={1.5} />
+            </div>
+          )}
         </div>
 
         {/* Botão INBOX (Direita) */}
         <motion.button 
+          id="dashboard-inbox-btn"
           whileTap={{ scale: 0.85 }} 
           onClick={async () => {
             setShowInbox(true);
@@ -171,14 +192,16 @@ export function Dashboard() {
       {/* --- PAINEIS LATERAIS E MODAIS --- */}
       <AnimatePresence>
         
-        {/* PAINEL DE MENU (Control Center) */}
+        {/* PAINEL DE MENU (Control Center) — RBAC: isLeader/onSignOut escondem ações de Líder */}
         {showMenu && (
           <ControlCenter 
             tasks={tasks} 
             onClose={() => setShowMenu(false)} 
             onPurgeDone={purgeDoneTasks} 
             onFactoryReset={factoryResetTasks} 
-            onForceSync={fetchTasks} 
+            onForceSync={fetchTasks}
+            isLeader={isLeader()}
+            onSignOut={signOut}
           />
         )}
 
