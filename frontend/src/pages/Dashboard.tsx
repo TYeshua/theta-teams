@@ -18,7 +18,7 @@ type ThetaContext = 'Foco Matinal' | 'Intervalo Rápido' | 'Pesquisa/Noite';
 
 export function Dashboard() {
   // Contexto de autenticação: expõe role e ações de auth
-  const { isLeader, signOut } = useAuth();
+  const { isLeader, signOut, user } = useAuth();
 
   const [thetaContext, setThetaContext] = useState<ThetaContext>('Foco Matinal');
   
@@ -62,6 +62,7 @@ export function Dashboard() {
         onAdd={() => setShowAdd(true)}
         onPlasticityOpen={() => setShowPlasticity(true)}
         isLoading={loading}
+        teamName={user?.team_name}
       />
 
       <main 
@@ -202,6 +203,7 @@ export function Dashboard() {
             onForceSync={fetchTasks}
             isLeader={isLeader()}
             onSignOut={signOut}
+            teamId={user?.team_id}
           />
         )}
 

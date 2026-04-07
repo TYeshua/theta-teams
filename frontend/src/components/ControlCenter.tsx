@@ -12,12 +12,15 @@ interface ControlCenterProps {
   // RBAC: props opcionais para controle por cargo
   isLeader?: boolean;
   onSignOut?: () => Promise<void>;
+  teamId?: string | null;
 }
 
-export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onForceSync, isLeader = true, onSignOut }: ControlCenterProps) {
+export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onForceSync, isLeader = true, onSignOut, teamId }: ControlCenterProps) {
   const [isPurging, setIsPurging] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
+  const [inviteFeedback, setInviteFeedback] = useState<string | null>(null);
 
   // Telemetry Memoization
   const { total, done, backlog, active, avgLoad, criticalCount } = useMemo(() => {
@@ -66,6 +69,40 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
       await onFactoryReset();
       setIsResetting(false);
       onClose(); // Automatically close since everything is gone
+    }
+  };
+
+
+  const handleGenerateInvite = async () => {
+    if (!teamId) return;
+    
+    setIsGeneratingInvite(true);
+    try {
+      const token = crypto.randomUUID();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // 7 dias
+
+      await (await import('../lib/supabase')).supabase.auth.getSession();
+      const { error } = await (await import('../lib/supabase')).supabase
+        .from('team_invites')
+        .insert({
+          team_id: teamId,
+          token: token,
+          expires_at: expiresAt.toISOString()
+        });
+
+      if (error) throw error;
+
+      const inviteUrl = `${window.location.origin}/signup?invite=${token}`;
+      await navigator.clipboard.writeText(inviteUrl);
+      
+      setInviteFeedback("Link de convite copiado!");
+      setTimeout(() => setInviteFeedback(null), 4000);
+    } catch (err: any) {
+      console.error("Erro ao gerar convite:", err);
+      alert("Falha ao gerar link de convite.");
+    } finally {
+      setIsGeneratingInvite(false);
     }
   };
 
@@ -222,13 +259,38 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
         {/* Gerenciar Equipe — apenas para Líder */}
         {isLeader && (
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest px-2">Gerenciar Equipe</span>
-            <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.03] p-4 rounded-2xl">
-              <Users size={18} className="text-neutral-400" />
-              <div>
-                <div className="text-sm font-bold text-white uppercase tracking-wider">Team Management</div>
-                <div className="text-[10px] text-neutral-500 font-medium">Cadastre e gerencie colaboradores</div>
+            <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest px-2">Gestão de Equipe</span>
+            <div className="flex flex-col gap-2 bg-white/[0.02] border border-white/[0.03] p-4 rounded-2xl">
+              <div className="flex items-center gap-3 mb-2">
+                <Users size={18} className="text-neutral-400" />
+                <div>
+                  <div className="text-sm font-bold text-white uppercase tracking-wider">Membros do Time</div>
+                  <div className="text-[10px] text-neutral-500 font-medium">Convide colaboradores para sua equipe</div>
+                </div>
               </div>
+              
+              <button 
+                onClick={handleGenerateInvite}
+                disabled={isGeneratingInvite || !teamId}
+                className="w-full py-3 bg-[#00f2ff]/10 border border-[#00f2ff]/20 rounded-xl text-[#00f2ff] text-[10px] font-black uppercase tracking-widest hover:bg-[#00f2ff]/20 transition-all flex items-center justify-center gap-2 group"
+              >
+                {isGeneratingInvite ? (
+                  <RefreshCw size={14} className="animate-spin" />
+                ) : (
+                  <Users size={14} className="group-hover:scale-110 transition-transform" />
+                )}
+                {isGeneratingInvite ? "Gerando..." : "Adicionar Integrante"}
+              </button>
+
+              {inviteFeedback && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 text-[9px] text-center font-bold text-[#00f2ff] uppercase tracking-wider"
+                >
+                  {inviteFeedback}
+                </motion.div>
+              )}
             </div>
           </div>
         )}

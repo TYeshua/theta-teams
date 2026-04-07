@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Calendar, Tag, AlignLeft, Loader2, Zap, Flame } from 'lucide-react';
+import { X, Plus, Calendar, Tag, AlignLeft, Loader2, Zap, Flame, Users } from 'lucide-react';
+import { useTeamMembers } from '../hooks/useTeamMembers';
+import { useAuth } from '../hooks/useAuth';
 import type { TaskCreate } from '../types/task';
 
 interface AddTaskModalProps {
@@ -40,6 +42,9 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
   });
   const [selectedEffort, setSelectedEffort] = useState<number | null>(null);
   const [selectedUrgency, setSelectedUrgency] = useState<number | null>(null);
+  const [assignedTo, setAssignedTo] = useState<string | null>(null);
+  const { isLeader } = useAuth();
+  const { teamMembers } = useTeamMembers();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +73,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
         description: form.description || undefined,
         urgency: selectedUrgency ?? undefined,
         effort: selectedEffort ?? undefined,
+        assigned_to: assignedTo,
       };
       await onAdd(payload);
       onClose();
@@ -268,6 +274,34 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* Atribuir a (apenas Líder) */}
+              {isLeader() && teamMembers.length > 0 && (
+                <div>
+                  <label className="flex items-center gap-2 text-[10px] text-neutral-500 font-bold uppercase tracking-widest mb-2 ml-1">
+                    <Users size={10} strokeWidth={2.5} /> Atribuir a:
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={assignedTo || ''}
+                      onChange={e => setAssignedTo(e.target.value || null)}
+                      className="w-full bg-[#050505] border border-white/[0.05] rounded-2xl px-4 py-3.5
+                        text-sm text-neutral-300 focus:outline-none focus:border-white/20
+                        transition-all appearance-none cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+                    >
+                      <option value="" className="bg-[#0A0A0A] text-neutral-500 italic">Eu (Líder)</option>
+                      {teamMembers.map(m => (
+                        <option key={m.id} value={m.id} className="bg-[#0A0A0A] text-white">
+                          {m.full_name || 'Usuário sem Nome'}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-600">
+                      ▼
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Categoria + Prazo */}
               <div className="grid grid-cols-2 gap-4">

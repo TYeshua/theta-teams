@@ -11,9 +11,10 @@ interface ThetaHeaderProps {
   onAdd: () => void;
   onPlasticityOpen: () => void;
   isLoading?: boolean;
+  teamName?: string | null;
 }
 
-export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPlasticityOpen, isLoading }: ThetaHeaderProps) {
+export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPlasticityOpen, isLoading, teamName }: ThetaHeaderProps) {
   // Configuração da Física de Mola Premium
   const springTransition = { type: "spring", stiffness: 400, damping: 30 } as const;
 
@@ -22,6 +23,15 @@ export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPla
       <div className="flex flex-col items-center">
         {/* Branding de Luxo THETA - Centralizado */}
         <div className="flex flex-col items-center text-center">
+          {teamName && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-[10px] font-black text-[#00f2ff]/60 uppercase tracking-[0.3em] mb-1"
+            >
+              {teamName}
+            </motion.div>
+          )}
           <h1 className="text-2xl font-black tracking-tighter text-white flex items-baseline justify-center gap-2 italic">
             <span className="text-[#00f2ff] drop-shadow-[0_0_15px_rgba(0,242,255,0.5)]">Θ</span> THETA
           </h1>

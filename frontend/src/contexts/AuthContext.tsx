@@ -33,6 +33,7 @@ export interface UserProfile {
   full_name: string | null;
   role: Role;
   team_id: string | null;
+  team_name: string | null;
 }
 
 /** Forma do contexto exposto para os componentes filhos */
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (supabaseUser: User): Promise<UserProfile> => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, full_name, role, team_id')
+      .select('id, email, full_name, role, team_id, teams(name)')
       .eq('id', supabaseUser.id)
       .single();
 
@@ -86,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         full_name: null,
         role: 'COLABORADOR',
         team_id: null,
+        team_name: null,
       };
     }
 
@@ -95,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       full_name: data.full_name,
       role: data.role as Role,
       team_id: data.team_id,
+      team_name: (data.teams as any)?.name ?? null,
     };
   }, []);
 
