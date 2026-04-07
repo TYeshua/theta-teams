@@ -52,6 +52,8 @@ export interface AuthContextType {
   isLeader: () => boolean;
   /** JWT atual para uso nos headers da API FastAPI. */
   accessToken: string | null;
+  /** Re-busca os dados do perfil (útil após criar equipe ou aceitar convite). */
+  refreshProfile: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -181,6 +183,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // JWT atual para injetar nos headers da API FastAPI
   const accessToken = session?.access_token ?? null;
 
+  /** Força a re-busca do perfil do usuário logado */
+  const refreshProfile = useCallback(async () => {
+    if (session?.user) {
+      const profile = await fetchProfile(session.user);
+      setUser(profile);
+    }
+  }, [session, fetchProfile]);
+
   // ---------------------------------------------------------------------------
   // Valor do contexto
   // ---------------------------------------------------------------------------
@@ -192,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     isLeader,
     accessToken,
+    refreshProfile,
   };
 
   return (

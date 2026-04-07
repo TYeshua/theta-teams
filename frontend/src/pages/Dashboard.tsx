@@ -50,6 +50,14 @@ export function Dashboard() {
 
   const criticalCount = useMemo(() => tasks.filter(t => t.priority_score >= SCORE_THRESHOLDS.CRITICAL).length, [tasks]);
 
+  // Categorização de Tarefas (Multi-tenant)
+  const { teamTasks, legacyTasks } = useMemo(() => {
+    return {
+      teamTasks: tasks.filter(t => t.team_id !== null),
+      legacyTasks: tasks.filter(t => t.team_id === null)
+    };
+  }, [tasks]);
+
   const springTransition = { type: "spring", stiffness: 400, damping: 30 } as const;
 
   return (
@@ -117,18 +125,46 @@ export function Dashboard() {
         )}
 
         {!loading && !error && tasks.length > 0 && (
-          <motion.div layout className="flex flex-col gap-3">
-            <AnimatePresence mode="popLayout">
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onCalibrate={setCalibrating}
-                  onDelete={deleteTask}
-                  onStatusChange={(id, status) => updateStatus(id, status)}
-                />
-              ))}
-            </AnimatePresence>
+          <motion.div layout className="flex flex-col gap-8">
+            {/* Seção 1: Demandas da Equipe */}
+            {teamTasks.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <h3 className="text-[10px] font-black text-[#00f2ff]/80 uppercase tracking-[0.2em] px-1 mb-1">
+                  Buffer de Equipe
+                </h3>
+                <AnimatePresence mode="popLayout">
+                  {teamTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onCalibrate={setCalibrating}
+                      onDelete={deleteTask}
+                      onStatusChange={(id, status) => updateStatus(id, status)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Seção 2: Demandas Antigas / Pessoais */}
+            {legacyTasks.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <h3 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] px-1 mb-1">
+                  Módulos Pessoais / Legado
+                </h3>
+                <AnimatePresence mode="popLayout">
+                  {legacyTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onCalibrate={setCalibrating}
+                      onDelete={deleteTask}
+                      onStatusChange={(id, status) => updateStatus(id, status)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
           </motion.div>
         )}
       </main>

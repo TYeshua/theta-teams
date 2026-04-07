@@ -43,7 +43,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
   const [selectedEffort, setSelectedEffort] = useState<number | null>(null);
   const [selectedUrgency, setSelectedUrgency] = useState<number | null>(null);
   const [assignedTo, setAssignedTo] = useState<string | null>(null);
-  const { isLeader } = useAuth();
+  const { isLeader, user } = useAuth();
   const { teamMembers } = useTeamMembers();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +74,7 @@ export function AddTaskModal({ onClose, onAdd, currentLoad = 0 }: AddTaskModalPr
         urgency: selectedUrgency ?? undefined,
         effort: selectedEffort ?? undefined,
         assigned_to: assignedTo,
+        team_id: user?.team_id,
       };
       await onAdd(payload);
       onClose();

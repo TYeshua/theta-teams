@@ -18,6 +18,7 @@ export interface Task {
   end_time?: string | null;
   last_activity_at?: string | null;
   assigned_to?: string | null;
+  team_id?: string | null;
 }
 
 export interface TaskCreate {
@@ -30,6 +31,7 @@ export interface TaskCreate {
   urgency?: number;
   effort?: number;
   assigned_to?: string | null;
+  team_id?: string | null;
 }
 
 export interface TaskCalibrate {

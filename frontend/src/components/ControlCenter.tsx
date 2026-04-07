@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Activity, Database, Trash2, Power, RefreshCw, AlertTriangle, LogOut, Users } from 'lucide-react';
+import { X, Activity, Database, Trash2, Power, RefreshCw, AlertTriangle, LogOut, Users, PlusCircle } from 'lucide-react';
 import type { Task } from '../types/task';
+import { api } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
 interface ControlCenterProps {
   tasks: Task[];
@@ -21,6 +23,9 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
   const [isSyncing, setIsSyncing] = useState(false);
   const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
   const [inviteFeedback, setInviteFeedback] = useState<string | null>(null);
+  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+  const [newTeamName, setNewTeamName] = useState('');
+  const { refreshProfile } = useAuth();
 
   // Telemetry Memoization
   const { total, done, backlog, active, avgLoad, criticalCount } = useMemo(() => {
@@ -103,6 +108,21 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
       alert("Falha ao gerar link de convite.");
     } finally {
       setIsGeneratingInvite(false);
+    }
+  };
+
+  const handleCreateTeam = async () => {
+    if (!newTeamName.trim()) return;
+    setIsCreatingTeam(true);
+    try {
+      await api.createTeam(newTeamName);
+      await refreshProfile();
+      setNewTeamName('');
+    } catch (err: any) {
+      console.error("Erro ao criar equipe:", err);
+      alert("Falha ao criar equipe.");
+    } finally {
+      setIsCreatingTeam(false);
     }
   };
 
@@ -256,42 +276,72 @@ export function ControlCenter({ tasks, onClose, onPurgeDone, onFactoryReset, onF
           </div>
         )}
 
-        {/* Gerenciar Equipe — apenas para Líder */}
+        {/* Gestão de Equipe — apenas para Líder */}
         {isLeader && (
           <div className="flex flex-col gap-3">
             <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest px-2">Gestão de Equipe</span>
-            <div className="flex flex-col gap-2 bg-white/[0.02] border border-white/[0.03] p-4 rounded-2xl">
-              <div className="flex items-center gap-3 mb-2">
-                <Users size={18} className="text-neutral-400" />
-                <div>
-                  <div className="text-sm font-bold text-white uppercase tracking-wider">Membros do Time</div>
-                  <div className="text-[10px] text-neutral-500 font-medium">Convide colaboradores para sua equipe</div>
+            
+            {!teamId ? (
+              <div className="flex flex-col gap-3 bg-[#00f2ff]/5 border border-[#00f2ff]/10 p-5 rounded-3xl">
+                <div className="flex items-center gap-3">
+                  <PlusCircle size={20} className="text-[#00f2ff]" />
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-white uppercase tracking-wider">Criar Minha Equipe</div>
+                    <div className="text-[10px] text-neutral-500 font-medium">Você ainda não possui uma equipe ativa</div>
+                  </div>
                 </div>
-              </div>
-              
-              <button 
-                onClick={handleGenerateInvite}
-                disabled={isGeneratingInvite || !teamId}
-                className="w-full py-3 bg-[#00f2ff]/10 border border-[#00f2ff]/20 rounded-xl text-[#00f2ff] text-[10px] font-black uppercase tracking-widest hover:bg-[#00f2ff]/20 transition-all flex items-center justify-center gap-2 group"
-              >
-                {isGeneratingInvite ? (
-                  <RefreshCw size={14} className="animate-spin" />
-                ) : (
-                  <Users size={14} className="group-hover:scale-110 transition-transform" />
-                )}
-                {isGeneratingInvite ? "Gerando..." : "Adicionar Integrante"}
-              </button>
+                
+                <input 
+                  type="text"
+                  placeholder="Nome da Equipe (ex: Alpha Team)"
+                  value={newTeamName}
+                  onChange={(e) => setNewTeamName(e.target.value)}
+                  className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#00f2ff]/40"
+                />
 
-              {inviteFeedback && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-2 text-[9px] text-center font-bold text-[#00f2ff] uppercase tracking-wider"
+                <button 
+                  onClick={handleCreateTeam}
+                  disabled={isCreatingTeam || !newTeamName.trim()}
+                  className="w-full py-3 bg-[#00f2ff] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2"
                 >
-                  {inviteFeedback}
-                </motion.div>
-              )}
-            </div>
+                  {isCreatingTeam ? <RefreshCw size={14} className="animate-spin" /> : <PlusCircle size={14} />}
+                  {isCreatingTeam ? "Criando..." : "Fundar Equipe"}
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 bg-white/[0.02] border border-white/[0.03] p-4 rounded-2xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users size={18} className="text-neutral-400" />
+                  <div>
+                    <div className="text-sm font-bold text-white uppercase tracking-wider">Membros do Time</div>
+                    <div className="text-[10px] text-neutral-500 font-medium">Convide colaboradores para sua equipe</div>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={handleGenerateInvite}
+                  disabled={isGeneratingInvite}
+                  className="w-full py-3 bg-[#00f2ff]/10 border border-[#00f2ff]/20 rounded-xl text-[#00f2ff] text-[10px] font-black uppercase tracking-widest hover:bg-[#00f2ff]/20 transition-all flex items-center justify-center gap-2 group"
+                >
+                  {isGeneratingInvite ? (
+                    <RefreshCw size={14} className="animate-spin" />
+                  ) : (
+                    <Users size={14} className="group-hover:scale-110 transition-transform" />
+                  )}
+                  {isGeneratingInvite ? "Gerando..." : "Adicionar Integrante"}
+                </button>
+
+                {inviteFeedback && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-2 text-[9px] text-center font-bold text-[#00f2ff] uppercase tracking-wider"
+                  >
+                    {inviteFeedback}
+                  </motion.div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
